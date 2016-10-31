@@ -1,0 +1,4 @@
+---
+  elasticsearch_host: '10.10.0.10'
+  elasticsearch_port: '9200'
+  backup_repository: 'backup_repository'
