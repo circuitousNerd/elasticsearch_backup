@@ -25,11 +25,12 @@ def find_config(config_arg):
         print(e)
         exit()
 
-def backup(elastic_node, backup_repository, port=9200):
+def backup(elastic_node, backup_repository, port=9200, snapshot_name=None):
     import json, requests, os, sys
 
-    # Get new snapshot name
-    snapshot_name = generate_snapshot_name()
+    # Get new snapshot name if none provided
+    if snapshot_name == None:
+        snapshot_name = generate_snapshot_name()
 
     # Assemble url
     snapshot_url = 'http://{0}:{1}/_snapshot/{2}/{3}'.format(elastic_node, port, backup_repository, snapshot_name)
@@ -58,6 +59,7 @@ def main():
     parser = argparse.ArgumentParser(description='Take subcommands and parameters for elasticsearch backup script.')
     parser.add_argument('function', type=str, choices=['backup','delete'], help='Triggers a new elasticsearch action.')
     parser.add_argument('--config', type=str, help='Specify path to a config file.')
+    parser.add_argument('--name', type=str, help='Specify snapshot name')
     args = parser.parse_args()
 
     # Find config file, and read in config
@@ -71,7 +73,7 @@ def main():
 
     # Call funky voodoo variable function
     if args.function == 'backup':
-        func(elastic_node=config['elasticsearch_host'], backup_repository=config['backup_repository'])
+        func(elastic_node=config['elasticsearch_host'], backup_repository=config['backup_repository'], snapshot_name=args.name)
     elif args.function == 'delete':
         func()
     else: # Should never get here. argparse should pick this up
