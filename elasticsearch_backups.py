@@ -164,9 +164,9 @@ def delete(age, elastic_node, backup_repository, port=9200, snapshot_name=None):
         backup_repository, snapshot_name)
         # Send REST API call
         try:
-            request = requests.get(url)
+            request = requests.delete(url)
             request.raise_for_status()
-            logging.info('delete: {0} completed'.format(request.text))
+            logging.info('delete: {0} completed'.format(snapshot_name))
         except ConnectionError as e:
             logging.error("delete: Failed to create {0}".format(e))
             logging.error(json.loads(request.text))
@@ -199,8 +199,13 @@ def main():
     help='Specify age to delete backups after')
     parser.add_argument('--logfile', type=str,
     help='Specify where to put a logfile')
+    parser.add_argument('--loglevel', type=str, help='Specify log level',
+    choices=['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL'])
 
     args = parser.parse_args()
+
+    # Find config file, and read in config
+    config = find_config(args.config)
 
     # Check if logfile was specified
     if args.logfile == None:
@@ -208,14 +213,14 @@ def main():
     else:
         logfile = args.logfile
 
-    # Find config file, and read in config
-    config = find_config(args.config)
-
+    # Check if logging level was specified
     try:
-        if config['logging_level'] == None:
-            pass
-        else:
+        if args.loglevel != None:
+            logging_level = logging.getLevelName(args.loglevel)
+            print('I am args: {0}'.format(logging_level))
+        elif config['logging_level'] != None:
             logging_level = logging.getLevelName(config['logging_level'])
+            print('I am config: {0}'.format(logging_level))
     except KeyError as e:
         logging_level = logging.getLevelName('ERROR')
 
