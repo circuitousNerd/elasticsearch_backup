@@ -62,7 +62,6 @@ def bulk_delete(snapshot_time_delta, elastic_node, backup_repository, port):
         except requests.exceptions.ConnectionError as e:
             logging.error("bulk_delete: Failed to create {0}".format(e))
 
-
 def parse_snapshot_name(snapshot_name=None):
     import logging, re
     from datetime import datetime
@@ -209,12 +208,20 @@ def main():
     else:
         logfile = args.logfile
 
-    # Set up logging
-    logging.basicConfig(filename=logfile, level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s')
-
     # Find config file, and read in config
     config = find_config(args.config)
+
+    try:
+        if config['logging_level'] == None:
+            pass
+        else:
+            logging_level = logging.getLevelName(config['logging_level'])
+    except KeyError as e:
+        logging_level = logging.getLevelName('ERROR')
+
+    # Set up logging
+    logging.basicConfig(filename=logfile, level=logging_level,
+    format='%(asctime)s - %(levelname)s - %(message)s')
 
     # Map argument string to function name
     FUNCTION_MAP = {'backup': backup, 'delete': delete}
