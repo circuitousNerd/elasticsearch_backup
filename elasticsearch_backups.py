@@ -82,6 +82,9 @@ def parse_snapshot_name(snapshot_name=None):
             return date
     except ValueError as e:
         logging.error('parse_snapshot_name: {0}'.format(e))
+    except AttributeError as e:
+        logging.info('Snapshot {0} is a manual snapshot. It cannot be deleted \
+        automatically.'.format(snapshot_name))
 
 def calculate_delta(snapshot_name=None, age=40):
     import logging, re
